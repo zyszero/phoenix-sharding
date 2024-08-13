@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: phoenix-sharding
+  sharding:
+    databases:
+      ds0:
+        url: jdbc:mysql://192.168.200.61:3306/phoenix_sharding0?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+        username: phoenix
+        password: Phoenix@2024
+      ds1:
+        url: jdbc:mysql://192.168.200.61:3306/phoenix_sharding1?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+        username: phoenix
+        password: Phoenix@2024
