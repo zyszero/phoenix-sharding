@@ -1,6 +1,5 @@
-package io.github.zyszero.phoenix.sharding;
+package io.github.zyszero.phoenix.sharding.mybatis;
 
-import io.github.zyszero.phoenix.sharding.demo.User;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.plugin.Interceptor;
@@ -27,7 +26,11 @@ public class SqlStatementInterceptor implements Interceptor {
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         StatementHandler handler = (StatementHandler) invocation.getTarget();
+        BoundSql boundSql = handler.getBoundSql();
+        System.out.println(" ===> sql statement: " + boundSql.getSql());
+        Object parameterObject = boundSql.getParameterObject();
 
+        System.out.println(" ===> sql parameters: " + parameterObject);
         // todo 修改 sql，比如 user -> user1
         return invocation.proceed();
     }

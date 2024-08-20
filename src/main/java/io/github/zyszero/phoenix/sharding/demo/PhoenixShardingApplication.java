@@ -1,7 +1,9 @@
-package io.github.zyszero.phoenix.sharding;
+package io.github.zyszero.phoenix.sharding.demo;
 
-import io.github.zyszero.phoenix.sharding.demo.User;
-import io.github.zyszero.phoenix.sharding.demo.UserMapper;
+import io.github.zyszero.phoenix.sharding.config.ShardingAutoConfiguration;
+import io.github.zyszero.phoenix.sharding.mybatis.ShardingMapperFactoryBean;
+import io.github.zyszero.phoenix.sharding.demo.mapper.UserMapper;
+import io.github.zyszero.phoenix.sharding.demo.model.User;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -12,7 +14,7 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import(ShardingAutoConfiguration.class)
-@MapperScan(value = "io.github.zyszero.phoenix.sharding.demo",
+@MapperScan(value = "io.github.zyszero.phoenix.sharding.demo.mapper",
         factoryBean = ShardingMapperFactoryBean.class)
 public class PhoenixShardingApplication {
 
@@ -27,7 +29,7 @@ public class PhoenixShardingApplication {
     @Bean
     ApplicationRunner runner() {
         return args -> {
-            for (int id = 0; id < 10; id++) {
+            for (int id = 1; id <= 10; id++) {
                 test(id);
             }
         };
@@ -36,7 +38,7 @@ public class PhoenixShardingApplication {
     private void test(int id) {
         System.out.println(" ===> 1, test insert ...");
         int inserted = userMapper.insert(new User(id, "zyszero", 18));
-        System.out.println(" ===> result = " + inserted);
+        System.out.println(" ===> inserted = " + inserted);
 
 
         System.out.println(" ===> 2, test find ...");

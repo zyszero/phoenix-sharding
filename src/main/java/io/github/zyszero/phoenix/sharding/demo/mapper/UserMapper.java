@@ -1,5 +1,6 @@
-package io.github.zyszero.phoenix.sharding.demo;
+package io.github.zyszero.phoenix.sharding.demo.mapper;
 
+import io.github.zyszero.phoenix.sharding.demo.model.User;
 import org.apache.ibatis.annotations.*;
 
 /**

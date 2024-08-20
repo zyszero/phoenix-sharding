@@ -1,4 +1,4 @@
-package io.github.zyszero.phoenix.sharding.demo;
+package io.github.zyszero.phoenix.sharding.demo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

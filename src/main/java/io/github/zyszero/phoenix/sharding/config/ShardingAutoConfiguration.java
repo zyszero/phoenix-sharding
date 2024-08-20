@@ -1,5 +1,6 @@
-package io.github.zyszero.phoenix.sharding;
+package io.github.zyszero.phoenix.sharding.config;
 
+import io.github.zyszero.phoenix.sharding.datasource.ShardingDataSource;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

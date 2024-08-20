@@ -1,6 +1,8 @@
-package io.github.zyszero.phoenix.sharding;
+package io.github.zyszero.phoenix.sharding.mybatis;
 
-import io.github.zyszero.phoenix.sharding.demo.User;
+import io.github.zyszero.phoenix.sharding.engine.ShardingContext;
+import io.github.zyszero.phoenix.sharding.engine.ShardingResult;
+import io.github.zyszero.phoenix.sharding.demo.model.User;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
