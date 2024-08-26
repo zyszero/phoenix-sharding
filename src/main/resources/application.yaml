@@ -11,3 +11,12 @@ spring:
         url: jdbc:mysql://192.168.200.61:3306/phoenix_sharding1?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
         username: phoenix
         password: Phoenix@2024
+    tables:
+      user:
+        actual-data-nodes: phoenix_sharding0.user0,phoenix_sharding1.user1,phoenix_sharding0.user2,phoenix_sharding1.user0,phoenix_sharding1.user1,phoenix_sharding1.user2
+        database-strategy:
+          sharding-column: id
+          algorithm-expression: phoenix_sharding${id % 2}
+        table-strategy:
+          sharding-column: id
+          algorithm-expression: user${id % 3}

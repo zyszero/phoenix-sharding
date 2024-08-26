@@ -1,6 +1,9 @@
 package io.github.zyszero.phoenix.sharding.config;
 
 import io.github.zyszero.phoenix.sharding.datasource.ShardingDataSource;
+import io.github.zyszero.phoenix.sharding.engine.ShardingEngine;
+import io.github.zyszero.phoenix.sharding.engine.StandardShardingEngine;
+import io.github.zyszero.phoenix.sharding.mybatis.SqlStatementInterceptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,4 +23,13 @@ public class ShardingAutoConfiguration {
         return new ShardingDataSource(properties);
     }
 
+    @Bean
+    public ShardingEngine shardingEngine(ShardingProperties properties) {
+        return new StandardShardingEngine(properties);
+    }
+
+    @Bean
+    public SqlStatementInterceptor sqlStatementInterceptor() {
+        return new SqlStatementInterceptor();
+    }
 }
