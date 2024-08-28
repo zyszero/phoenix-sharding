@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 
 /**
  * Mapper for user.
+ *
  * @Author: zyszero
  * @Date: 2024/8/13 23:14
  */
