@@ -20,3 +20,11 @@ spring:
         table-strategy:
           sharding-column: id
           algorithm-expression: user${id % 3}
+      t_order:
+        actual-data-nodes: phoenix_sharding0.t_order0,phoenix_sharding0.t_order1,phoenix_sharding1.t_order0,phoenix_sharding1.t_order1
+        database-strategy:
+          sharding-column: uid
+          algorithm-expression: phoenix_sharding${uid % 2}
+        table-strategy:
+          sharding-column: id
+          algorithm-expression: t_order${id % 2}

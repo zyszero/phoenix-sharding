@@ -6,16 +6,18 @@ import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import io.github.zyszero.phoenix.sharding.config.ShardingProperties;
-import io.github.zyszero.phoenix.sharding.demo.model.User;
 import io.github.zyszero.phoenix.sharding.strategy.HashShardingStrategy;
 import io.github.zyszero.phoenix.sharding.strategy.ShardingStrategy;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Standard sharding engine.
@@ -53,9 +55,11 @@ public class StandardShardingEngine implements ShardingEngine {
     @Override
     public ShardingResult sharding(String sql, Object[] args) {
         SQLStatement sqlStatement = SQLUtils.parseSingleMysqlStatement(sql);
+        String table;
+        Map<String, Object> shardingColumnsMap;
         if (sqlStatement instanceof SQLInsertStatement sqlInsertStatement) {
-            String table = sqlInsertStatement.getTableName().getSimpleName();
-            Map<String, Object> shardingColumnsMap = new HashMap<>();
+            table = sqlInsertStatement.getTableName().getSimpleName();
+            shardingColumnsMap = new HashMap<>();
             List<SQLExpr> columns = sqlInsertStatement.getColumns();
             for (int i = 0; i < columns.size(); i++) {
                 SQLExpr column = columns.get(i);
@@ -63,28 +67,38 @@ public class StandardShardingEngine implements ShardingEngine {
                 String columnName = columnExpr.getSimpleName();
                 shardingColumnsMap.put(columnName, args[i]);
             }
-
-
-            ShardingStrategy databaseStrategy = databaseStrategies.get(table);
-            String targetDatabase = databaseStrategy.doSharding(actualDatabaseNames.get(table), table, shardingColumnsMap);
-
-            ShardingStrategy tableStrategy = tableStrategies.get(table);
-            String targetTable = tableStrategy.doSharding(actualDatabaseNames.get(table), table, shardingColumnsMap);
-            System.out.println(" ===>>> ");
-            System.out.println(" ===>>> target db.table = " + targetDatabase + "." + targetTable);
-            System.out.println(" ===>>> ");
         } else {
-            // TODO SELECT/UPDATE/DELETE
+
+            // SELECT/UPDATE/DELETE
+            MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
+            visitor.setParameters(List.of(args));
+            sqlStatement.accept(visitor);
+
+            LinkedHashSet<SQLName> sqlNames = new LinkedHashSet<>(visitor.getOriginalTables());
+            if (sqlNames.size() > 1) {
+                throw new RuntimeException("no support multi tables sharding: " + sqlNames);
+            }
+            table = sqlNames.iterator().next().getSimpleName();
+            System.out.println(" ===>>> visitor.getOriginalTables = " + table);
+
+            shardingColumnsMap =
+                    visitor.getConditions()
+                            .stream()
+                            .collect(
+                                    Collectors.toMap(
+                                            c -> c.getColumn().getName(), c -> c.getValues().get(0)
+                                    ));
+            System.out.println(" ===>>> visitor.getConditions = " + shardingColumnsMap);
         }
 
-        Object parameterObject = args[0];
-        System.out.println(" ===> getObject sql statements: " + sql);
-        int id = 0;
-        if (parameterObject instanceof User user) {
-            id = user.getId();
-        } else if (parameterObject instanceof Integer userId) {
-            id = userId;
-        }
-        return new ShardingResult(id % 2 == 0 ? "phoenix-sharding0" : "phoenix-sharding1", sql);
+        ShardingStrategy databaseStrategy = databaseStrategies.get(table);
+        String targetDatabase = databaseStrategy.doSharding(actualDatabaseNames.get(table), table, shardingColumnsMap);
+        ShardingStrategy tableStrategy = tableStrategies.get(table);
+        String targetTable = tableStrategy.doSharding(actualDatabaseNames.get(table), table, shardingColumnsMap);
+        System.out.println(" ===>>> ");
+        System.out.println(" ===>>> target db.table = " + targetDatabase + "." + targetTable);
+        System.out.println(" ===>>> ");
+
+        return new ShardingResult(targetDatabase, sql.replace(table, targetTable));
     }
 }
